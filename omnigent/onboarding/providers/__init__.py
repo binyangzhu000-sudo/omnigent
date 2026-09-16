@@ -355,9 +355,7 @@ def _download_provider_catalog(provider: str) -> dict[str, Any] | None:
         request: str | urllib.request.Request = url
         if provider == "atlascloud":
             # Atlas Cloud's edge rejects the default urllib User-Agent.
-            request = urllib.request.Request(
-                url, headers={"User-Agent": "omnigent-model-catalog"}
-            )
+            request = urllib.request.Request(url, headers={"User-Agent": "omnigent-model-catalog"})
         with urllib.request.urlopen(request, timeout=5) as resp:
             result: dict[str, Any] = json.loads(resp.read())
         if provider == "atlascloud":

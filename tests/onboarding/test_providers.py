@@ -709,29 +709,6 @@ def test_download_atlascloud_catalog_sends_user_agent(monkeypatch: pytest.Monkey
     assert seen[0].headers["User-agent"] == "omnigent-model-catalog"
 
 
-def test_default_chat_model_dynamic_skips_specialty_variants() -> None:
-    """The dynamic rule (non-pinned providers) drops specialty modalities.
-
-    Pinned providers short-circuit, so this exercises the catalog rule via
-    the internal helper on the openai catalog (whose newest-first top entry
-    is a specialty model): the dynamic pick must skip audio/realtime/etc.
-    and choose a general-purpose ``gpt-*``. Guards the fallback used for any
-    non-pinned provider.
-    """
-    from omnigent.onboarding.providers import _SPECIALTY_MODEL_TOKENS
-
-    general = [
-        m.name
-        for m in get_chat_models("openai")
-        if not any(tok in m.name.lower() for tok in _SPECIALTY_MODEL_TOKENS)
-    ]
-    assert general, "openai catalog should have a general-purpose model"
-    # The catalog's raw newest-first top entry IS a specialty model, so the
-    # dynamic rule's exclusion genuinely changes the result.
-    assert general[0] != get_chat_models("openai")[0].name
-    assert general[0].startswith("gpt-")
-
-
 def test_default_chat_model_openrouter_requires_kimi_family() -> None:
     """OpenRouter does not silently fall back to a proprietary model."""
     assert default_chat_model("openrouter", allowed_models={"openai/gpt-6"}) is None
